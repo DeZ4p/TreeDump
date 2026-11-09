@@ -16,6 +16,20 @@ function Stop-Build([string]$Message) {
     exit 1
 }
 
+# Adds a directory to a zip using only file/folder names (no path-prefix arithmetic),
+# so 8.3 short paths vs long paths cannot corrupt entry names.
+function Add-ZipDirectory($Zip, [string]$Dir, [string]$Prefix) {
+    foreach ($file in [System.IO.Directory]::GetFiles($Dir)) {
+        $entryName = $Prefix + [System.IO.Path]::GetFileName($file)
+        [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+            $Zip, $file, $entryName, [System.IO.Compression.CompressionLevel]::Optimal)
+    }
+    foreach ($sub in [System.IO.Directory]::GetDirectories($Dir)) {
+        $subPrefix = $Prefix + [System.IO.Path]::GetFileName($sub) + "/"
+        Add-ZipDirectory $Zip $sub $subPrefix
+    }
+}
+
 # ---------- Root ----------
 if ([string]::IsNullOrWhiteSpace($Root)) {
     $scriptPath = $PSScriptRoot
@@ -170,12 +184,7 @@ $zip = $null
 try {
     $fs  = [System.IO.File]::Open($zipPath, [System.IO.FileMode]::Create)
     $zip = New-Object System.IO.Compression.ZipArchive($fs, [System.IO.Compression.ZipArchiveMode]::Create)
-    $baseLen = $stageBase.Length
-    foreach ($f in Get-ChildItem -LiteralPath $stage -Recurse -File) {
-        $rel = $f.FullName.Substring($baseLen).TrimStart('\').Replace('\', '/')
-        [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
-            $zip, $f.FullName, $rel, [System.IO.Compression.CompressionLevel]::Optimal)
-    }
+    Add-ZipDirectory $zip $stage "$folderName/"
 }
 finally {
     if ($zip) { $zip.Dispose() }
@@ -185,17 +194,22 @@ finally {
 # Verify zip (names normalized, so both separators are accepted)
 $expected = "$folderName/TreeDump.exe"
 $found = $false
-$entryCount = 0
+$names = New-Object System.Collections.Generic.List[string]
 $rz = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
 try {
     foreach ($e in $rz.Entries) {
-        $entryCount++
-        if ($e.FullName.Replace('\', '/') -eq $expected) { $found = $true }
+        $n = $e.FullName.Replace('\', '/')
+        $names.Add($n)
+        if ($n -eq $expected) { $found = $true }
     }
 }
 finally { $rz.Dispose() }
-if (-not $found) { Stop-Build "$expected was not found inside the portable zip ($entryCount entries)." }
-Write-Host ("[ OK ] Portable zip: {0:N1} MB, {1} entries" -f ((Get-Item $zipPath).Length / 1MB), $entryCount) -ForegroundColor Green
+if (-not $found) {
+    Write-Host "First entries in the zip:"
+    $names | Select-Object -First 8 | ForEach-Object { Write-Host "  $_" }
+    Stop-Build "$expected was not found inside the portable zip ($($names.Count) entries)."
+}
+Write-Host ("[ OK ] Portable zip: {0:N1} MB, {1} entries" -f ((Get-Item $zipPath).Length / 1MB), $names.Count) -ForegroundColor Green
 
 # ---------- Installer ----------
 Write-Host ""
