@@ -20,9 +20,7 @@
 ---
 
 <p align="center">
-  <img src="
-screenshot/pic.png
-" alt="TreeDump Pro: workspace, export, search and settings" width="100%">
+  <img src="screenshot/pic.png" alt="TreeDump Pro: workspace, export, search and settings" width="100%">
 </p>
 
 ## Why
