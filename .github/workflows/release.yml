@@ -34,24 +34,26 @@ jobs:
             exit 1
           }
 
-      - name: Publish (framework-dependent)
-        run: dotnet publish TreeDump.csproj -c Release -r win-x64 --self-contained false -p:DebugType=None -p:DebugSymbols=false -o out/fdd
-
-      - name: Publish (self-contained)
-        run: dotnet publish TreeDump.csproj -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o out/sc
-
-      - name: Package and checksum
+      - name: Ensure Inno Setup is installed
         shell: pwsh
-        env:
-          TAG: ${{ github.ref_name }}
         run: |
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "out/fdd/*" -DestinationPath "dist/TreeDump-$($env:TAG)-win-x64.zip"
-          Compress-Archive -Path "out/sc/*" -DestinationPath "dist/TreeDump-$($env:TAG)-win-x64-self-contained.zip"
-          Get-ChildItem dist -Filter *.zip | ForEach-Object {
-            $h = Get-FileHash $_.FullName -Algorithm SHA256
-            "{0}  {1}" -f $h.Hash.ToLowerInvariant(), $_.Name
-          } | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+          $found = @(${env:ProgramFiles(x86)}, $env:ProgramFiles) |
+            ForEach-Object { Get-ChildItem -LiteralPath $_ -Directory -Filter "Inno Setup*" -ErrorAction SilentlyContinue } |
+            Select-Object -First 1
+          if ($found) {
+            Write-Host "Found: $($found.FullName)"
+          }
+          else {
+            Write-Host "Inno Setup not found on runner. Installing with Chocolatey."
+            choco install innosetup -y --no-progress
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+          }
+
+      - name: Build installer and portable package
+        shell: pwsh
+        run: |
+          ./scripts/Build-Release.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Build release notes from CHANGELOG
         shell: pwsh
@@ -68,10 +70,10 @@ jobs:
           }
           $notes = $m.Groups[1].Value.Trim()
           $notes += "`n`n---`n`n**Downloads**`n`n"
-          $notes += "- ``TreeDump-$($env:TAG)-win-x64.zip``: small download, requires the .NET 8 Desktop Runtime.`n"
-          $notes += "- ``TreeDump-$($env:TAG)-win-x64-self-contained.zip``: larger download, nothing else to install.`n"
-          $notes += "- ``SHA256SUMS.txt``: checksums for both archives.`n`n"
-          $notes += "Extract the archive to a folder you can write to (not Program Files). Settings and exports are stored next to the executable."
+          $notes += "- ``TreeDump-Setup-$ver.exe``: installer (recommended). Installs for the current user, no admin rights and no .NET needed.`n"
+          $notes += "- ``TreeDump-Portable-$ver-win-x64.zip``: portable build. Extract anywhere you can write to and run ``TreeDump.exe``. Settings and exports stay next to the executable.`n"
+          $notes += "- ``SHA256SUMS.txt``: checksums for both files.`n`n"
+          $notes += "The files are not code-signed, so Windows SmartScreen may warn on first run (More info, then Run anyway). Verify the checksum if in doubt."
           Set-Content -Encoding utf8 release-notes.md $notes
 
       - name: Create GitHub release

@@ -48,3 +48,6 @@ Desktop.ini
 
 # ---- Local-only notes ----
 .clinerules/
+# Installer build output
+out/
+dist/
