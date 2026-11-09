@@ -19,6 +19,12 @@
 
 ---
 
+<p align="center">
+  <img src="
+screenshot/pic.png
+" alt="TreeDump Pro: workspace, export, search and settings" width="100%">
+</p>
+
 ## Why
 
 Feeding a project to an AI assistant usually means copying files by hand, guessing
