@@ -1,0 +1,122 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Core Palette Colors (Graphite Indigo Dark) -->
+    <Color x:Key="ClrSurfaceBase">#14151B</Color>
+    <Color x:Key="ClrSurfaceRaised">#1C1D26</Color>
+    <Color x:Key="ClrSurfaceOverlay">#252631</Color>
+    <Color x:Key="ClrSurfaceInput">#101116</Color>
+    <Color x:Key="ClrSurfaceHover">#2E3040</Color>
+    <Color x:Key="ClrSurfaceScrim">#CC08080C</Color>
+
+    <Color x:Key="ClrTextPrimary">#F0F1F7</Color>
+    <Color x:Key="ClrTextSecondary">#B0B3C7</Color>
+    <Color x:Key="ClrTextDisabled">#8A8DA3</Color>
+
+    <Color x:Key="ClrBorderSubtle">#2D2F3D</Color>
+    <Color x:Key="ClrBorderInput">#5C5F76</Color>
+
+    <Color x:Key="ClrAccent">#2563EB</Color>
+    <Color x:Key="ClrAccentLight">#3B82F6</Color>
+    <Color x:Key="ClrAccentHover">#1D4ED8</Color>
+    <Color x:Key="ClrAccentText">#8AB4FF</Color>
+    <Color x:Key="ClrAccentSubtle">#202B52</Color>
+
+    <Color x:Key="ClrSuccessText">#4ADE9A</Color>
+    <Color x:Key="ClrSuccessAction">#059669</Color>
+    <Color x:Key="ClrSuccessSubtle">#14291F</Color>
+
+    <Color x:Key="ClrWarningText">#FBBF24</Color>
+    <Color x:Key="ClrWarningAction">#D97706</Color>
+    <Color x:Key="ClrWarningSubtle">#2B2411</Color>
+
+    <Color x:Key="ClrDangerText">#FA8585</Color>
+    <Color x:Key="ClrDangerAction">#DC2626</Color>
+    <Color x:Key="ClrDangerActionHover">#B91C1C</Color>
+    <Color x:Key="ClrDangerSubtle">#301A1F</Color>
+
+    <Color x:Key="ClrPurpleText">#C4A1FF</Color>
+    <Color x:Key="ClrPurpleSubtle">#2A2042</Color>
+
+    <Color x:Key="ClrCyanText">#4DDCF0</Color>
+    <Color x:Key="ClrCyanSubtle">#122930</Color>
+
+    <Color x:Key="ClrFocusRing">#93B8FF</Color>
+    <Color x:Key="ClrOnAction">#FFFFFF</Color>
+
+    <!-- Semantic Surface Brushes -->
+    <SolidColorBrush x:Key="SurfaceBase" Color="{StaticResource ClrSurfaceBase}" />
+    <SolidColorBrush x:Key="SurfaceRaised" Color="{StaticResource ClrSurfaceRaised}" />
+    <SolidColorBrush x:Key="SurfaceOverlay" Color="{StaticResource ClrSurfaceOverlay}" />
+    <SolidColorBrush x:Key="SurfaceInput" Color="{StaticResource ClrSurfaceInput}" />
+    <SolidColorBrush x:Key="SurfaceHover" Color="{StaticResource ClrSurfaceHover}" />
+    <SolidColorBrush x:Key="SurfaceScrim" Color="{StaticResource ClrSurfaceScrim}" />
+
+    <!-- Subtle Header & Card Gradients -->
+    <LinearGradientBrush x:Key="SurfaceHeaderBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#262733" Offset="0" />
+        <GradientStop Color="#1C1D26" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SurfaceCardBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#21222D" Offset="0" />
+        <GradientStop Color="#1C1D26" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Semantic Text Brushes -->
+    <SolidColorBrush x:Key="TextPrimary" Color="{StaticResource ClrTextPrimary}" />
+    <SolidColorBrush x:Key="TextSecondary" Color="{StaticResource ClrTextSecondary}" />
+    <SolidColorBrush x:Key="TextDisabled" Color="{StaticResource ClrTextDisabled}" />
+
+    <!-- Border Brushes -->
+    <SolidColorBrush x:Key="BorderSubtle" Color="{StaticResource ClrBorderSubtle}" />
+    <SolidColorBrush x:Key="BorderInput" Color="{StaticResource ClrBorderInput}" />
+
+    <!-- Accent & Interactive Gradients -->
+    <SolidColorBrush x:Key="Accent" Color="{StaticResource ClrAccent}" />
+    <SolidColorBrush x:Key="AccentHover" Color="{StaticResource ClrAccentHover}" />
+    <SolidColorBrush x:Key="AccentText" Color="{StaticResource ClrAccentText}" />
+    <SolidColorBrush x:Key="AccentSubtle" Color="{StaticResource ClrAccentSubtle}" />
+
+    <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#2F6CF0" Offset="0" />
+        <GradientStop Color="#1F56D6" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="AccentGradientHover" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#3470F0" Offset="0" />
+        <GradientStop Color="#2860E8" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Status & Metric Brushes -->
+    <SolidColorBrush x:Key="SuccessText" Color="{StaticResource ClrSuccessText}" />
+    <SolidColorBrush x:Key="SuccessAction" Color="{StaticResource ClrSuccessAction}" />
+    <SolidColorBrush x:Key="SuccessSubtle" Color="{StaticResource ClrSuccessSubtle}" />
+
+    <SolidColorBrush x:Key="WarningText" Color="{StaticResource ClrWarningText}" />
+    <SolidColorBrush x:Key="WarningAction" Color="{StaticResource ClrWarningAction}" />
+    <SolidColorBrush x:Key="WarningSubtle" Color="{StaticResource ClrWarningSubtle}" />
+
+    <SolidColorBrush x:Key="DangerText" Color="{StaticResource ClrDangerText}" />
+    <SolidColorBrush x:Key="DangerAction" Color="{StaticResource ClrDangerAction}" />
+    <SolidColorBrush x:Key="DangerActionHover" Color="{StaticResource ClrDangerActionHover}" />
+    <SolidColorBrush x:Key="DangerSubtle" Color="{StaticResource ClrDangerSubtle}" />
+
+    <SolidColorBrush x:Key="PurpleText" Color="{StaticResource ClrPurpleText}" />
+    <SolidColorBrush x:Key="PurpleSubtle" Color="{StaticResource ClrPurpleSubtle}" />
+
+    <SolidColorBrush x:Key="CyanText" Color="{StaticResource ClrCyanText}" />
+    <SolidColorBrush x:Key="CyanSubtle" Color="{StaticResource ClrCyanSubtle}" />
+
+    <SolidColorBrush x:Key="FocusRing" Color="{StaticResource ClrFocusRing}" />
+    <SolidColorBrush x:Key="OnAction" Color="{StaticResource ClrOnAction}" />
+
+    <!-- Legacy Compatibility Aliases -->
+    <SolidColorBrush x:Key="BgColor" Color="{StaticResource ClrSurfaceBase}" />
+    <SolidColorBrush x:Key="PanelColor" Color="{StaticResource ClrSurfaceRaised}" />
+    <SolidColorBrush x:Key="ToolbarColor" Color="{StaticResource ClrSurfaceOverlay}" />
+    <SolidColorBrush x:Key="TextColor" Color="{StaticResource ClrTextPrimary}" />
+    <SolidColorBrush x:Key="TextMuted" Color="{StaticResource ClrTextSecondary}" />
+    <SolidColorBrush x:Key="BorderColor" Color="{StaticResource ClrBorderSubtle}" />
+    <SolidColorBrush x:Key="AccentColor" Color="{StaticResource ClrAccentText}" />
+</ResourceDictionary>

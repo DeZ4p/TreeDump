@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore TreeDump.csproj
+
+      - name: Build (Release)
+        run: dotnet build TreeDump.csproj -c Release --no-restore
+
+      - name: Reject broken characters (mojibake)
+        shell: pwsh
+        run: |
+          $moji = [string][char]0x00E2 + [string][char]0x20AC
+          $bad = git ls-files '*.cs' '*.xaml' '*.md' '*.csproj' '*.yml' |
+            Where-Object { [System.IO.File]::ReadAllText((Resolve-Path $_)).Contains($moji) }
+          if ($bad) {
+            Write-Error ("Broken characters found in: " + ($bad -join ", "))
+            exit 1
+          }
+          Write-Host "No broken characters found."

@@ -1,0 +1,85 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- TreeDump Pro logo. 256x256 design grid. Use: <Image Source="{StaticResource AppLogo}" /> -->
+    <DrawingImage x:Key="AppLogo">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <DrawingGroup.ClipGeometry>
+                    <RectangleGeometry Rect="0,0,256,256" />
+                </DrawingGroup.ClipGeometry>
+
+                <!-- Tile -->
+                <GeometryDrawing>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush MappingMode="Absolute" StartPoint="8,8" EndPoint="248,248">
+                            <GradientStop Color="#2F6BF0" Offset="0" />
+                            <GradientStop Color="#5B4BE0" Offset="1" />
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="8,8,240,240" RadiusX="56" RadiusY="56" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- Top highlight -->
+                <DrawingGroup>
+                    <DrawingGroup.ClipGeometry>
+                        <RectangleGeometry Rect="0,0,256,136" />
+                    </DrawingGroup.ClipGeometry>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Brush>
+                            <LinearGradientBrush MappingMode="Absolute" StartPoint="0,8" EndPoint="0,136">
+                                <GradientStop Color="#38FFFFFF" Offset="0" />
+                                <GradientStop Color="#00FFFFFF" Offset="1" />
+                            </LinearGradientBrush>
+                        </GeometryDrawing.Brush>
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry Rect="8,8,240,240" RadiusX="56" RadiusY="56" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+
+                <!-- Trunk + branch connectors -->
+                <GeometryDrawing Geometry="M 68,91 V 164 Q 68,180 84,180 H 100">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#D9FFFFFF" Thickness="12" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 68,128 H 100">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#D9FFFFFF" Thickness="12" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+
+                <!-- Root node -->
+                <GeometryDrawing Brush="#FFFFFF">
+                    <GeometryDrawing.Geometry>
+                        <EllipseGeometry Center="68,76" RadiusX="15" RadiusY="15" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- Row 1 (project) -->
+                <GeometryDrawing Brush="#FFFFFF">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="100,68,88,16" RadiusX="8" RadiusY="8" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- Row 2 (folder) -->
+                <GeometryDrawing Brush="#E6EEFF">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="112,120,64,16" RadiusX="8" RadiusY="8" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+                <!-- Row 3 (highlighted file) -->
+                <GeometryDrawing Brush="#7DE3F7">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="112,172,96,16" RadiusX="8" RadiusY="8" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+</ResourceDictionary>

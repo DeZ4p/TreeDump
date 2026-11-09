@@ -1,0 +1,250 @@
+<Window x:Class="TreeDump.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="User Guide &amp; Keyboard Shortcuts — TreeDump Pro"
+        Width="780"
+        Height="660"
+        MinWidth="640"
+        MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        Background="{DynamicResource SurfaceBase}"
+        Foreground="{DynamicResource TextPrimary}"
+        FontFamily="{StaticResource UiFont}"
+        KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+        <Style x:Key="HelpCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SurfaceRaised}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+
+        <Style x:Key="SectionHeading" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentText}" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+
+        <Style x:Key="KeyBadge" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBase}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="Margin" Value="0,3,12,3" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+
+        <Style x:Key="KeyText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource CodeFont}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        </Style>
+
+        <Style x:Key="BodyParagraph" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="LineHeight" Value="19" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SurfaceRaised}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,0,0,1"
+                Padding="18,12">
+            <StackPanel>
+                <TextBlock Text="TreeDump Pro — Enterprise LLM Context Guide"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimary}" />
+                <TextBlock Text="Quick reference for workspace scanning, token-aware exports, secret redaction, and keyboard navigation."
+                           FontSize="12"
+                           Foreground="{DynamicResource TextSecondary}"
+                           Margin="0,2,0,0" />
+            </StackPanel>
+        </Border>
+
+        <!-- Scrollable Documentation -->
+        <ScrollViewer Grid.Row="1"
+                      Padding="16,14,16,4"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+
+                <!-- 1. Core Workflow -->
+                <Border Style="{StaticResource HelpCard}">
+                    <StackPanel>
+                        <TextBlock Text="1. Recommended Workflow for AI / LLM Coding"
+                                   Style="{StaticResource SectionHeading}" />
+                        <TextBlock Style="{StaticResource BodyParagraph}"
+                                   Margin="0,0,0,8"
+                                   Text="• Open a Workspace (Ctrl+O or drag &amp; drop a folder onto the main window). TreeDump Pro automatically filters build artifacts, binary files, and .gitignore paths." />
+                        <TextBlock Style="{StaticResource BodyParagraph}"
+                                   Margin="0,0,0,8"
+                                   Text="• Copy Individual Files: Select a file in the explorer tree and click 'Copy Content' in the editor toolbar. The file is formatted as a fenced Markdown block with its relative path and automatically marked as 'Sent' for the current session." />
+                        <TextBlock Style="{StaticResource BodyParagraph}"
+                                   Margin="0,0,0,8"
+                                   Text="• Advanced Multi-File Export (Ctrl+E): Export the entire codebase or a custom subset into Markdown, Plain Text, JSON, or Claude-compatible XML. Enable token chunking (e.g., 60k or 100k tokens per part) for large repositories." />
+                        <TextBlock Style="{StaticResource BodyParagraph}"
+                                   Text="• Session Handoff (Ctrl+H): When switching to a new AI chat window, generate a Handoff document containing the workspace ASCII tree and the exact list of files already shared in the current session." />
+                    </StackPanel>
+                </Border>
+
+                <!-- 2. Security & Secret Protection -->
+                <Border Style="{StaticResource HelpCard}">
+                    <StackPanel>
+                        <TextBlock Text="2. Security &amp; Secret Redaction"
+                                   Style="{StaticResource SectionHeading}" />
+                        <TextBlock Style="{StaticResource BodyParagraph}"
+                                   Margin="0,0,0,8"
+                                   Text="• Sensitive File Guard: Attempting to copy sensitive files (.env, .pem, .key, .pfx, credentials) directly triggers a confirmation dialog with 'Cancel' selected by default. Bulk 'Copy Sent' automatically skips sensitive files." />
+                        <TextBlock Style="{StaticResource BodyParagraph}"
+                                   Text="• Automatic Secret Masking: In Advanced Export, keeping 'Redact secrets, keys &amp; .env values' checked masks PEM private keys, API tokens (OpenAI, GitHub, AWS, Slack, JWT), connection string passwords, and secret key-value pairs across all exported files." />
+                    </StackPanel>
+                </Border>
+
+                <!-- 3. Keyboard Shortcuts -->
+                <Border Style="{StaticResource HelpCard}" Margin="0">
+                    <StackPanel>
+                        <TextBlock Text="3. Keyboard Shortcuts"
+                                   Style="{StaticResource SectionHeading}" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + O" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Open a workspace folder" />
+
+                            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + F" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Search text or regular expression across all workspace files" />
+
+                            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + E" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Open Advanced Context &amp; Codebase Export window" />
+
+                            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + H" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="3" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Generate Session Handoff document and copy to clipboard" />
+
+                            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + P" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Copy configured Prompt / Laws file to clipboard" />
+
+                            <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + S" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Save changes when the code editor is in Edit mode" />
+
+                            <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + T" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Toggle between Dark and Light themes" />
+
+                            <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + ," Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="7" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Open Preferences &amp; Scanner Settings" />
+
+                            <Border Grid.Row="8" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="F5" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="8" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Rescan active workspace while preserving current session state" />
+
+                            <Border Grid.Row="9" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="F1" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="9" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Open this User Guide &amp; Keyboard Shortcuts window" />
+
+                            <Border Grid.Row="10" Grid.Column="0" Style="{StaticResource KeyBadge}">
+                                <TextBlock Text="Ctrl + Q" Style="{StaticResource KeyText}" />
+                            </Border>
+                            <TextBlock Grid.Row="10" Grid.Column="1" VerticalAlignment="Center"
+                                       Style="{StaticResource BodyParagraph}"
+                                       Text="Exit TreeDump Pro (prompts if editor has unsaved changes)" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource SurfaceRaised}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,1,0,0"
+                Padding="18,12">
+            <Grid>
+                <TextBlock Text="Press Esc or Enter to close this guide."
+                           Foreground="{DynamicResource TextSecondary}"
+                           VerticalAlignment="Center" />
+                <Button Content="Close"
+                        Style="{StaticResource BtnPrimary}"
+                        MinWidth="96"
+                        HorizontalAlignment="Right"
+                        IsDefault="True"
+                        IsCancel="True"
+                        Click="BtnClose_Click" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

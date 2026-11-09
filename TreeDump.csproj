@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\TreeDump.ico</ApplicationIcon>
+    <AssemblyName>TreeDump</AssemblyName>
+    <RootNamespace>TreeDump</RootNamespace>
+    <Version>1.0.0</Version>
+    <InformationalVersion>1.0.0</InformationalVersion>
+    <Company>DeZ4p</Company>
+    <Copyright>Copyright (c) DeZ4p</Copyright>
+    <RepositoryUrl>https://github.com/DeZ4p</RepositoryUrl>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Authors>DeZ4p</Authors>
+    <Product>TreeDump Pro</Product>
+    <Description>Project tree and context exporter for AI workflows</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="backups\**" />
+    <Compile Remove="export\**" />
+    <Page Remove="backups\**" />
+    <Page Remove="export\**" />
+    <EmbeddedResource Remove="backups\**" />
+    <EmbeddedResource Remove="export\**" />
+    <None Remove="backups\**" />
+    <None Remove="export\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.3.1.120" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
+    <PackageReference Include="SharpToken" Version="2.0.6" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,354 @@
+<Window x:Class="TreeDump.SearchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Global Content Search — TreeDump Pro"
+        Width="960" Height="650"
+        MinWidth="740" MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SurfaceBase}"
+        Foreground="{DynamicResource TextPrimary}"
+        FontFamily="{DynamicResource FontUI}"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        KeyDown="Window_KeyDown"
+        Closing="Window_Closing">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ==================== STUDIO HEADER ==================== -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SurfaceHeaderBrush}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,0,0,1"
+                Padding="22,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Border Width="38" Height="38" CornerRadius="10"
+                            Background="{DynamicResource CyanSubtle}"
+                            BorderBrush="{DynamicResource CyanText}"
+                            BorderThickness="1"
+                            Margin="0,0,14,0">
+                        <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontIcon}"
+                                   FontSize="17" Foreground="{DynamicResource CyanText}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Global Project Search"
+                                   FontSize="17" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="High-speed parallel full-text &amp; regular expression search across workspace files."
+                                   FontSize="12" Margin="0,2,0,0"
+                                   Foreground="{DynamicResource TextSecondary}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{DynamicResource SurfaceBase}"
+                        BorderBrush="{DynamicResource BorderSubtle}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="10,5"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="Double-Click or Enter to Jump to Line"
+                               FontSize="11" FontFamily="{DynamicResource FontMono}"
+                               Foreground="{DynamicResource TextSecondary}"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ==================== SEARCH CONTROLS CARD ==================== -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource SurfaceRaised}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,0,0,1"
+                Padding="22,14">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Query Input -->
+                    <Grid Grid.Column="0">
+                        <TextBox x:Name="TxtQuery"
+                                 Style="{StaticResource InputTextBox}"
+                                 Padding="32,7,10,7"
+                                 FontSize="13.5"
+                                 KeyDown="TxtQuery_KeyDown"
+                                 ToolTip="Enter text or regular expression to find"/>
+                        <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontIcon}"
+                                   FontSize="13" Foreground="{DynamicResource CyanText}"
+                                   VerticalAlignment="Center" Margin="11,0,0,0"
+                                   IsHitTestVisible="False"/>
+                        <TextBlock Text="Search text or regex pattern..."
+                                   Foreground="{DynamicResource TextDisabled}"
+                                   VerticalAlignment="Center"
+                                   Margin="32,0,0,0"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=TxtQuery}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+
+                    <!-- Extension Filter Input -->
+                    <Grid Grid.Column="2">
+                        <TextBox x:Name="TxtFileFilter"
+                                 Style="{StaticResource InputTextBox}"
+                                 Padding="30,7,10,7"
+                                 FontSize="12.5"
+                                 FontFamily="{DynamicResource FontMono}"
+                                 KeyDown="TxtQuery_KeyDown"
+                                 ToolTip="Optional file filter (e.g., .cs, .ts, .json)"/>
+                        <TextBlock Text="&#xE71C;" FontFamily="{DynamicResource FontIcon}"
+                                   FontSize="12" Foreground="{DynamicResource TextSecondary}"
+                                   VerticalAlignment="Center" Margin="10,0,0,0"
+                                   IsHitTestVisible="False"/>
+                        <TextBlock Text="Filter (e.g. .cs, .xaml)"
+                                   Foreground="{DynamicResource TextDisabled}"
+                                   VerticalAlignment="Center"
+                                   Margin="30,0,0,0"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=TxtFileFilter}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+
+                    <Button x:Name="BtnSearch"
+                            Grid.Column="4"
+                            Style="{StaticResource BtnPrimary}"
+                            Width="115"
+                            IsDefault="True"
+                            Click="BtnSearch_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontIcon}"
+                                       FontSize="12" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="Search"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnCancel"
+                            Grid.Column="6"
+                            Content="Stop"
+                            Style="{StaticResource BtnDanger}"
+                            Width="80"
+                            IsEnabled="False"
+                            Click="BtnCancel_Click"/>
+                </Grid>
+
+                <!-- Search Option Toggles -->
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <Border Background="{DynamicResource SurfaceBase}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,10,0">
+                        <CheckBox x:Name="ChkMatchCase" Content="Match Case (Aa)"/>
+                    </Border>
+                    <Border Background="{DynamicResource SurfaceBase}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,10,0">
+                        <CheckBox x:Name="ChkWholeWord" Content="Whole Word (\b)"/>
+                    </Border>
+                    <Border Background="{DynamicResource SurfaceBase}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1" CornerRadius="6" Padding="10,5">
+                        <CheckBox x:Name="ChkRegex" Content="Regular Expression (.*)"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ==================== RESULTS LIST ==================== -->
+        <Grid Grid.Row="2" Margin="18,14">
+            <Border Background="{DynamicResource SurfaceRaised}"
+                    BorderBrush="{DynamicResource BorderSubtle}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="6">
+                <Grid>
+                    <ListBox x:Name="LstResults"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingStackPanel.IsVirtualizing="True"
+                             VirtualizingStackPanel.VirtualizationMode="Recycling"
+                             MouseDoubleClick="LstResults_MouseDoubleClick"
+                             KeyDown="LstResults_KeyDown">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="10,7"/>
+                                <Setter Property="Margin" Value="0,1"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="Bd"
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="Transparent"
+                                                    BorderThickness="1"
+                                                    CornerRadius="6"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceHover}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentSubtle}"/>
+                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="270"/>
+                                        <ColumnDefinition Width="78"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontIcon}"
+                                                   FontSize="12.5" Foreground="{DynamicResource AccentText}"
+                                                   VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                        <TextBlock Text="{Binding RelativePath}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimary}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding RelativePath}"/>
+                                    </StackPanel>
+
+                                    <Border Grid.Column="1"
+                                            Background="{DynamicResource CyanSubtle}"
+                                            CornerRadius="4" Padding="6,2"
+                                            HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding LineNumber, StringFormat='L:{0}'}"
+                                                   FontFamily="{DynamicResource FontMono}"
+                                                   FontSize="11" FontWeight="Bold"
+                                                   Foreground="{DynamicResource CyanText}"/>
+                                    </Border>
+
+                                    <Border Grid.Column="2"
+                                            Background="{DynamicResource SurfaceBase}"
+                                            BorderBrush="{DynamicResource BorderSubtle}"
+                                            BorderThickness="1"
+                                            CornerRadius="5"
+                                            Padding="8,4">
+                                        <TextBlock Text="{Binding PreviewText}"
+                                                   FontFamily="{DynamicResource FontMono}"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource TextSecondary}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- Empty State -->
+                    <StackPanel x:Name="EmptyStatePanel"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                IsHitTestVisible="False">
+                        <Border Width="54" Height="54" CornerRadius="14"
+                                Background="{DynamicResource CyanSubtle}"
+                                HorizontalAlignment="Center" Margin="0,0,0,12">
+                            <TextBlock Text="&#xE721;"
+                                       FontFamily="{DynamicResource FontIcon}"
+                                       FontSize="24"
+                                       Foreground="{DynamicResource CyanText}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Enter a query above and press Enter to search"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Searches across all non-ignored text files in parallel."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextSecondary}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ==================== FOOTER ==================== -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource SurfaceRaised}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,1,0,0"
+                Padding="22,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8" Fill="{DynamicResource CyanText}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtStatus"
+                               Text="Ready."
+                               FontSize="12.5"
+                               Foreground="{DynamicResource TextSecondary}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="BtnOpenSelected"
+                            Style="{StaticResource BtnSecondary}"
+                            Margin="0,0,8,0"
+                            Click="BtnOpenSelected_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8A7;" FontFamily="{DynamicResource FontIcon}"
+                                       FontSize="12" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="Jump to Match"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Content="Close (Esc)"
+                            Style="{StaticResource BtnGhost}"
+                            Width="105"
+                            Click="BtnClose_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>   

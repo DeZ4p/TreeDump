@@ -1,0 +1,227 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Font families used by the secondary windows and menus. -->
+    <FontFamily x:Key="FontUI">Segoe UI</FontFamily>
+    <FontFamily x:Key="FontIcon">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+    <FontFamily x:Key="FontMono">Cascadia Code, Consolas, Courier New</FontFamily>
+
+    <!-- Named aliases of the implicit TextBox / ComboBox styles defined in Controls.xaml. -->
+    <Style x:Key="InputTextBox"
+           TargetType="TextBox"
+           BasedOn="{StaticResource {x:Type TextBox}}" />
+
+    <Style x:Key="StandardComboBox"
+           TargetType="ComboBox"
+           BasedOn="{StaticResource {x:Type ComboBox}}" />
+
+    <!-- Glyph used inside MenuItem.Icon. Color comes from the menu template (accent) unless set locally. -->
+    <Style x:Key="MenuGlyph" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource FontIcon}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- ================================================================== -->
+    <!-- MENU TEMPLATES (override of the implicit MenuItem style in Controls) -->
+    <!-- ================================================================== -->
+
+    <!-- Top-level header (File / View / Tools / Help): text only, width = text + padding. -->
+    <ControlTemplate x:Key="TopLevelMenuItemTemplate" TargetType="MenuItem">
+        <Grid SnapsToDevicePixels="True">
+            <Border x:Name="Bd"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="6"
+                    Padding="{TemplateBinding Padding}">
+                <ContentPresenter x:Name="Hdr"
+                                  ContentSource="Header"
+                                  RecognizesAccessKey="True"
+                                  VerticalAlignment="Center"
+                                  TextElement.Foreground="{DynamicResource TextSecondary}" />
+            </Border>
+
+            <Popup x:Name="PART_Popup"
+                   AllowsTransparency="True"
+                   Focusable="False"
+                   HorizontalOffset="-12"
+                   VerticalOffset="2"
+                   IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                   Placement="Bottom"
+                   PopupAnimation="Fade">
+                <Border Margin="12,0,12,16"
+                        MinWidth="250"
+                        Background="{DynamicResource SurfaceOverlay}"
+                        BorderBrush="{DynamicResource BorderInput}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="4"
+                        Grid.IsSharedSizeScope="True">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="18" ShadowDepth="4" Direction="270" Opacity="0.5" Color="Black" />
+                    </Border.Effect>
+                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                </Border>
+            </Popup>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceHover}" />
+                <Setter TargetName="Hdr" Property="TextElement.Foreground" Value="{DynamicResource TextPrimary}" />
+            </Trigger>
+            <Trigger Property="IsSubmenuOpen" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceHover}" />
+                <Setter TargetName="Hdr" Property="TextElement.Foreground" Value="{DynamicResource TextPrimary}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- Submenu entry / submenu header: icon column, text, gesture, arrow. -->
+    <ControlTemplate x:Key="SubMenuItemTemplate" TargetType="MenuItem">
+        <Grid SnapsToDevicePixels="True">
+            <Border x:Name="Bd"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="6"
+                    Margin="2,1"
+                    Padding="{TemplateBinding Padding}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="22" SharedSizeGroup="MenuIconCol" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="MenuGestureCol" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="MenuArrowCol" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0"
+                          Margin="0,0,10,0"
+                          TextElement.Foreground="{DynamicResource AccentText}">
+                        <ContentPresenter x:Name="IconHost"
+                                          ContentSource="Icon"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Center" />
+                        <TextBlock x:Name="CheckGlyph"
+                                   FontFamily="{StaticResource FontIcon}"
+                                   Text="&#xE73E;"
+                                   FontSize="13"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Visibility="Collapsed" />
+                    </Grid>
+
+                    <ContentPresenter Grid.Column="1"
+                                      ContentSource="Header"
+                                      RecognizesAccessKey="True"
+                                      VerticalAlignment="Center" />
+
+                    <TextBlock x:Name="GestureText"
+                               Grid.Column="2"
+                               Text="{TemplateBinding InputGestureText}"
+                               Foreground="{DynamicResource TextDisabled}"
+                               FontFamily="{StaticResource FontMono}"
+                               FontSize="11"
+                               Margin="28,0,0,0"
+                               VerticalAlignment="Center" />
+
+                    <TextBlock x:Name="SubmenuArrow"
+                               Grid.Column="3"
+                               FontFamily="{StaticResource FontIcon}"
+                               Text="&#xE76C;"
+                               FontSize="9"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="14,0,0,0"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center"
+                               Visibility="Collapsed" />
+                </Grid>
+            </Border>
+
+            <Popup x:Name="PART_Popup"
+                   AllowsTransparency="True"
+                   Focusable="False"
+                   HorizontalOffset="-14"
+                   VerticalOffset="-5"
+                   IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                   Placement="Right"
+                   PopupAnimation="Fade">
+                <Border Margin="12,0,12,16"
+                        MinWidth="230"
+                        Background="{DynamicResource SurfaceOverlay}"
+                        BorderBrush="{DynamicResource BorderInput}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="4"
+                        Grid.IsSharedSizeScope="True">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="18" ShadowDepth="4" Direction="270" Opacity="0.5" Color="Black" />
+                    </Border.Effect>
+                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                </Border>
+            </Popup>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="Role" Value="SubmenuHeader">
+                <Setter TargetName="SubmenuArrow" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="CheckGlyph" Property="Visibility" Value="Visible" />
+                <Setter TargetName="IconHost" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceHover}" />
+                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- Implicit MenuItem style: wins over Controls.xaml because Extras is merged last. -->
+    <Style TargetType="MenuItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontUI}" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Padding" Value="8,6" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template" Value="{StaticResource SubMenuItemTemplate}" />
+        <Style.Triggers>
+            <Trigger Property="Role" Value="TopLevelHeader">
+                <Setter Property="Template" Value="{StaticResource TopLevelMenuItemTemplate}" />
+                <Setter Property="Padding" Value="10,5" />
+            </Trigger>
+            <Trigger Property="Role" Value="TopLevelItem">
+                <Setter Property="Template" Value="{StaticResource TopLevelMenuItemTemplate}" />
+                <Setter Property="Padding" Value="10,5" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Context menu: same look as before, plus a shared-size scope and a sane minimum width. -->
+    <Style TargetType="ContextMenu">
+        <Setter Property="Background" Value="{DynamicResource SurfaceOverlay}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderInput}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border MinWidth="230"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}"
+                            Grid.IsSharedSizeScope="True">
+                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

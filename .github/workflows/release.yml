@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Verify tag matches project version
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $tagVersion = $env:TAG.TrimStart("v")
+          [xml]$proj = Get-Content -Raw TreeDump.csproj
+          $projVersion = @($proj.Project.PropertyGroup.Version | Where-Object { $_ })[0]
+          Write-Host "Tag: $tagVersion   Project: $projVersion"
+          if ($projVersion -ne $tagVersion) {
+            Write-Error "Tag v$tagVersion does not match <Version> $projVersion in TreeDump.csproj"
+            exit 1
+          }
+
+      - name: Publish (framework-dependent)
+        run: dotnet publish TreeDump.csproj -c Release -r win-x64 --self-contained false -p:DebugType=None -p:DebugSymbols=false -o out/fdd
+
+      - name: Publish (self-contained)
+        run: dotnet publish TreeDump.csproj -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o out/sc
+
+      - name: Package and checksum
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path "out/fdd/*" -DestinationPath "dist/TreeDump-$($env:TAG)-win-x64.zip"
+          Compress-Archive -Path "out/sc/*" -DestinationPath "dist/TreeDump-$($env:TAG)-win-x64-self-contained.zip"
+          Get-ChildItem dist -Filter *.zip | ForEach-Object {
+            $h = Get-FileHash $_.FullName -Algorithm SHA256
+            "{0}  {1}" -f $h.Hash.ToLowerInvariant(), $_.Name
+          } | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+
+      - name: Build release notes from CHANGELOG
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $ver = $env:TAG.TrimStart("v")
+          $log = Get-Content -Raw CHANGELOG.md
+          $rx = "(?s)## \[" + [regex]::Escape($ver) + "\][^\r\n]*\r?\n(.*?)(?=\r?\n## \[|\r?\n\[[^\]]+\]:|\z)"
+          $m = [regex]::Match($log, $rx)
+          if (-not $m.Success) {
+            Write-Error "No CHANGELOG.md section found for version $ver"
+            exit 1
+          }
+          $notes = $m.Groups[1].Value.Trim()
+          $notes += "`n`n---`n`n**Downloads**`n`n"
+          $notes += "- ``TreeDump-$($env:TAG)-win-x64.zip``: small download, requires the .NET 8 Desktop Runtime.`n"
+          $notes += "- ``TreeDump-$($env:TAG)-win-x64-self-contained.zip``: larger download, nothing else to install.`n"
+          $notes += "- ``SHA256SUMS.txt``: checksums for both archives.`n`n"
+          $notes += "Extract the archive to a folder you can write to (not Program Files). Settings and exports are stored next to the executable."
+          Set-Content -Encoding utf8 release-notes.md $notes
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          $assets = Get-ChildItem dist -File | ForEach-Object { $_.FullName }
+          $extra = @()
+          if ($env:TAG -match '-') { $extra += "--prerelease" }
+          gh release create $env:TAG @assets --title "TreeDump Pro $env:TAG" --notes-file release-notes.md --verify-tag @extra

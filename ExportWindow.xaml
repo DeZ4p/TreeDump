@@ -1,0 +1,816 @@
+<Window x:Class="TreeDump.ExportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:TreeDump"
+        Title="AI Context Export Center - TreeDump Pro"
+        Width="1160" Height="820"
+        MinWidth="960" MinHeight="660"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SurfaceBase}"
+        Foreground="{DynamicResource TextPrimary}"
+        FontFamily="{DynamicResource FontUI}"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        KeyDown="Window_KeyDown"
+        Closing="Window_Closing">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ==================== HEADER ==================== -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SurfaceHeaderBrush}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,0,0,1"
+                Padding="22,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="42" Height="42" CornerRadius="10"
+                            Background="{DynamicResource AccentGradient}"
+                            Margin="0,0,14,0">
+                        <TextBlock Text="&#xE72D;" FontFamily="{DynamicResource FontIcon}"
+                                   FontSize="18" Foreground="{DynamicResource OnAction}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtHeaderTitle"
+                                   Text="AI Context Export Center"
+                                   FontSize="18" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock x:Name="TxtHeaderSubtitle"
+                                   Text="Pick text and code, fit a token budget, and generate LLM-ready context."
+                                   FontSize="12" Margin="0,3,0,0"
+                                   Foreground="{DynamicResource TextSecondary}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{DynamicResource SurfaceCardBrush}"
+                        BorderBrush="{DynamicResource Accent}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="14,8"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="26" Height="26" CornerRadius="6"
+                                Background="{DynamicResource CyanSubtle}"
+                                Margin="0,0,10,0">
+                            <TextBlock Text="&#xE945;" FontFamily="{DynamicResource FontIcon}"
+                                       FontSize="13" Foreground="{DynamicResource CyanText}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="ESTIMATED PAYLOAD" FontSize="9.5" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextSecondary}"/>
+                            <TextBlock x:Name="TxtSelectionSummary"
+                                       Text="0 files | 0 B | ~0 tokens"
+                                       FontSize="12.5" FontWeight="Bold"
+                                       Foreground="{DynamicResource CyanText}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ==================== BODY ==================== -->
+        <Grid Grid.Row="1" Margin="18,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" MinWidth="380"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="1.25*" MinWidth="460"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT: FILE TREE -->
+            <Border Grid.Column="0"
+                    Background="{DynamicResource SurfaceRaised}"
+                    BorderBrush="{DynamicResource BorderSubtle}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="24" Height="24" CornerRadius="6"
+                                    Background="{DynamicResource AccentSubtle}" Margin="0,0,8,0">
+                                <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontIcon}"
+                                           FontSize="12" Foreground="{DynamicResource AccentText}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Scope Selection"
+                                       FontSize="13.5" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Check folders or files to include"
+                                   FontSize="11.5"
+                                   Foreground="{DynamicResource TextSecondary}"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"/>
+                    </DockPanel>
+
+                    <WrapPanel Grid.Row="1" Margin="0,0,0,10">
+                        <Button Style="{StaticResource BtnGhost}" Padding="9,5" Margin="0,0,4,4"
+                                Click="BtnSelectAll_Click" ToolTip="Select all eligible files">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE762;" FontFamily="{DynamicResource FontIcon}" FontSize="11"
+                                           Foreground="{DynamicResource AccentText}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="Select All" FontSize="11.5"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource BtnGhost}" Padding="9,5" Margin="0,0,4,4"
+                                Click="BtnSelectNone_Click" ToolTip="Deselect all files">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8E6;" FontFamily="{DynamicResource FontIcon}" FontSize="11"
+                                           Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="Clear" FontSize="11.5"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource BtnGhost}" Padding="9,5" Margin="0,0,4,4"
+                                Click="BtnSelectCode_Click" ToolTip="Select source code files only">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE943;" FontFamily="{DynamicResource FontIcon}" FontSize="11"
+                                           Foreground="{DynamicResource SuccessText}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="Code" FontSize="11.5"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource BtnGhost}" Padding="9,5" Margin="0,0,4,4"
+                                Click="BtnSelectImportant_Click" ToolTip="Select key project, config and doc files">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE734;" FontFamily="{DynamicResource FontIcon}" FontSize="11"
+                                           Foreground="{DynamicResource WarningText}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="Important" FontSize="11.5"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource BtnGhost}" Padding="9,5" Margin="0,0,4,4"
+                                Click="BtnExpandAll_Click" ToolTip="Expand all folders">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE740;" FontFamily="{DynamicResource FontIcon}" FontSize="11"
+                                           Foreground="{DynamicResource CyanText}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="Expand" FontSize="11.5"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource BtnGhost}" Padding="9,5" Margin="0,0,0,4"
+                                Click="BtnCollapseAll_Click" ToolTip="Collapse all folders">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE73F;" FontFamily="{DynamicResource FontIcon}" FontSize="11"
+                                           Foreground="{DynamicResource PurpleText}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBlock Text="Collapse" FontSize="11.5"/>
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+
+                    <Grid Grid.Row="2" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="TxtFilter"
+                                 Grid.Column="0"
+                                 Style="{StaticResource InputTextBox}"
+                                 Padding="30,6,10,6"
+                                 ToolTip="Filter tree by file or folder name"
+                                 AutomationProperties.Name="Filter files by name"
+                                 TextChanged="TxtFilter_TextChanged"/>
+                        <TextBlock Grid.Column="0"
+                                   Text="&#xE721;"
+                                   FontFamily="{DynamicResource FontIcon}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextDisabled}"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"
+                                   IsHitTestVisible="False"/>
+                        <TextBlock Grid.Column="0"
+                                   Text="Filter files by name..."
+                                   Foreground="{DynamicResource TextDisabled}"
+                                   VerticalAlignment="Center"
+                                   Margin="30,0,0,0"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=TxtFilter}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Button x:Name="BtnClearFilter"
+                                Grid.Column="1"
+                                Content="Reset"
+                                Style="{StaticResource BtnGhost}"
+                                Margin="6,0,0,0"
+                                Padding="10,5"
+                                Visibility="Collapsed"
+                                Click="BtnClearFilter_Click"/>
+                    </Grid>
+
+                    <Border Grid.Row="3"
+                            Background="{DynamicResource SurfaceBase}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="4">
+                        <TreeView x:Name="ExportTree"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  VirtualizingStackPanel.IsVirtualizing="True"
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                  ContextMenuOpening="ExportTree_ContextMenuOpening">
+                            <TreeView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Check this folder (all files)" Click="CtxCheckSubtree_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE73E;"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Uncheck this folder (all files)" Click="CtxUncheckSubtree_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE8E6;"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator/>
+                                    <MenuItem Header="Expand subtree" Click="CtxExpandSubtree_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE740;"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Collapse subtree" Click="CtxCollapseSubtree_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE73F;"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </TreeView.ContextMenu>
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type local:FileNode}" ItemsSource="{Binding Children}">
+                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                  VerticalAlignment="Center"
+                                                  Margin="0,0,8,0"
+                                                  Click="NodeCheckBox_Click"/>
+                                        <TextBlock FontFamily="{DynamicResource FontIcon}"
+                                                   FontSize="13.5"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,7,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="&#xE8A5;"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                                            <Setter Property="Text" Value="&#xE8B7;"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningText}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="12.5"
+                                                   Foreground="{DynamicResource TextPrimary}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding SizeFormatted}"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource TextDisabled}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,0,0"/>
+                                        <Border Background="{DynamicResource SuccessSubtle}"
+                                                BorderBrush="{DynamicResource SuccessAction}"
+                                                BorderThickness="1"
+                                                CornerRadius="4"
+                                                Padding="5,1"
+                                                Margin="8,0,0,0"
+                                                Visibility="{Binding IsSent, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="SENT"
+                                                       FontSize="9" FontWeight="Bold"
+                                                       Foreground="{DynamicResource SuccessText}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- RIGHT: OPTIONS -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+                <StackPanel>
+
+                    <!-- CARD 1: Smart Selection & Budget -->
+                    <Border Background="{DynamicResource SurfaceRaised}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,12">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <Border Width="24" Height="24" CornerRadius="6"
+                                        Background="{DynamicResource AccentSubtle}" Margin="0,0,8,0">
+                                    <TextBlock Text="&#xE71C;" FontFamily="{DynamicResource FontIcon}"
+                                               FontSize="12" Foreground="{DynamicResource AccentText}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="1. Smart Selection &amp; Budget"
+                                           FontSize="13.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <CheckBox x:Name="ChkTextOnly"
+                                      Content="Text &amp; code only (skip images, video, audio, archives, binaries, fonts, keys)"
+                                      IsChecked="True"
+                                      Margin="0,0,0,12"
+                                      Click="SelectionFilter_Click"/>
+
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Token budget:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondary}"/>
+                                <Grid Grid.Column="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="CmbTokenBudget" Grid.Column="0"
+                                              Style="{StaticResource StandardComboBox}"
+                                              SelectionChanged="CmbTokenBudget_SelectionChanged">
+                                        <ComboBoxItem Content="No limit" Tag="0"/>
+                                        <ComboBoxItem Content="16K tokens" Tag="16000"/>
+                                        <ComboBoxItem Content="32K tokens" Tag="32000"/>
+                                        <ComboBoxItem Content="64K tokens" Tag="64000"/>
+                                        <ComboBoxItem Content="128K tokens - GPT-4o, DeepSeek" Tag="128000" IsSelected="True"/>
+                                        <ComboBoxItem Content="200K tokens - Claude" Tag="200000"/>
+                                        <ComboBoxItem Content="1M tokens - Gemini" Tag="1000000"/>
+                                        <ComboBoxItem Content="Custom..." Tag="custom"/>
+                                    </ComboBox>
+                                    <TextBox x:Name="TxtCustomBudget" Grid.Column="1"
+                                             Style="{StaticResource InputTextBox}"
+                                             Width="110" Margin="6,0,0,0"
+                                             Visibility="Collapsed"
+                                             ToolTip="Tokens, for example 150000 or 150k"
+                                             AutomationProperties.Name="Custom token budget"
+                                             TextChanged="TxtCustomBudget_TextChanged"/>
+                                </Grid>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Total size limit:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondary}"/>
+                                <ComboBox x:Name="CmbSizeLimit" Grid.Column="1"
+                                          Style="{StaticResource StandardComboBox}"
+                                          SelectionChanged="BudgetInput_SelectionChanged">
+                                    <ComboBoxItem Content="No limit" Tag="0" IsSelected="True"/>
+                                    <ComboBoxItem Content="256 KB" Tag="256"/>
+                                    <ComboBoxItem Content="512 KB" Tag="512"/>
+                                    <ComboBoxItem Content="1 MB" Tag="1024"/>
+                                    <ComboBoxItem Content="2 MB" Tag="2048"/>
+                                    <ComboBoxItem Content="4 MB" Tag="4096"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <!-- Budget meter -->
+                            <Border Height="10" CornerRadius="5"
+                                    Background="{DynamicResource SurfaceBase}"
+                                    BorderBrush="{DynamicResource BorderSubtle}"
+                                    BorderThickness="1"
+                                    Margin="0,12,0,8"
+                                    ClipToBounds="True"
+                                    AutomationProperties.Name="Budget usage meter">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition x:Name="MeterFillCol" Width="0*"/>
+                                        <ColumnDefinition x:Name="MeterRestCol" Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border x:Name="MeterFill" Grid.Column="0"
+                                            Background="{DynamicResource SuccessAction}"/>
+                                </Grid>
+                            </Border>
+
+                            <DockPanel Margin="0,0,0,2">
+                                <TextBlock x:Name="TxtBudgetState" DockPanel.Dock="Right"
+                                           Text="No limit set"
+                                           FontSize="11.5" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                                <TextBlock x:Name="TxtTokenMeter"
+                                           Text="Tokens: 0"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource TextPrimary}"/>
+                            </DockPanel>
+                            <TextBlock x:Name="TxtSizeMeter"
+                                       Text="Size: 0 B"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource TextSecondary}"/>
+                            <TextBlock x:Name="TxtPartsInfo"
+                                       Text="Output: 1 file"
+                                       FontSize="12"
+                                       Margin="0,2,0,0"
+                                       TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextSecondary}"/>
+                            <TextBlock x:Name="TxtSelectionNote"
+                                       Text=""
+                                       FontSize="11.5"
+                                       Margin="0,2,0,0"
+                                       TextWrapping="Wrap"
+                                       Foreground="{DynamicResource WarningText}"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <Button x:Name="BtnAutoFit"
+                                        Style="{StaticResource BtnSecondary}"
+                                        Padding="12,6" Margin="0,0,8,0"
+                                        ToolTip="Pick the most useful files that fit the budget"
+                                        Click="BtnAutoFit_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE945;" FontFamily="{DynamicResource FontIcon}" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Auto-fit to budget"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="BtnDropLarge"
+                                        Style="{StaticResource BtnGhost}"
+                                        Padding="12,6"
+                                        ToolTip="Uncheck files larger than the max single file size"
+                                        Click="BtnDropLarge_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE71C;" FontFamily="{DynamicResource FontIcon}" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Drop oversized files"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- CARD 2: Format & Parts -->
+                    <Border Background="{DynamicResource SurfaceRaised}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,12">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <Border Width="24" Height="24" CornerRadius="6"
+                                        Background="{DynamicResource CyanSubtle}" Margin="0,0,8,0">
+                                    <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontIcon}"
+                                               FontSize="12" Foreground="{DynamicResource CyanText}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="2. Output Format &amp; Parts"
+                                           FontSize="13.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Output Format:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondary}"/>
+                                <ComboBox x:Name="CmbFormat" Grid.Column="1" Style="{StaticResource StandardComboBox}"
+                                          SelectionChanged="CmbFormat_SelectionChanged">
+                                    <ComboBoxItem Content="Markdown (.md) - ChatGPT / Claude / DeepSeek" Tag="md" IsSelected="True"/>
+                                    <ComboBoxItem Content="XML Context (.xml) - structured tagging" Tag="xml"/>
+                                    <ComboBoxItem Content="JSON Bundle (.json) - API / RAG ingestion" Tag="json"/>
+                                    <ComboBoxItem Content="Plain Text (.txt) - universal raw format" Tag="txt"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Split into parts:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondary}"/>
+                                <ComboBox x:Name="CmbSplit" Grid.Column="1" Style="{StaticResource StandardComboBox}"
+                                          SelectionChanged="BudgetInput_SelectionChanged">
+                                    <ComboBoxItem Content="Single file (no splitting) - recommended" Tag="0" IsSelected="True"/>
+                                    <ComboBoxItem Content="30K tokens per part - small chat windows" Tag="30000"/>
+                                    <ComboBoxItem Content="60K tokens per part" Tag="60000"/>
+                                    <ComboBoxItem Content="100K tokens per part" Tag="100000"/>
+                                    <ComboBoxItem Content="180K tokens per part - Claude / Gemini" Tag="180000"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Max single file size:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondary}"/>
+                                <ComboBox x:Name="CmbMaxFileSize" Grid.Column="1" Style="{StaticResource StandardComboBox}"
+                                          SelectionChanged="BudgetInput_SelectionChanged">
+                                    <ComboBoxItem Content="64 KB" Tag="64"/>
+                                    <ComboBoxItem Content="128 KB" Tag="128"/>
+                                    <ComboBoxItem Content="256 KB (default)" Tag="256" IsSelected="True"/>
+                                    <ComboBoxItem Content="512 KB" Tag="512"/>
+                                    <ComboBoxItem Content="1024 KB (1 MB)" Tag="1024"/>
+                                    <ComboBoxItem Content="Unlimited" Tag="0"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <CheckBox x:Name="ChkTruncateLarge"
+                                      Content="Truncate oversized files (head + tail preview) instead of skipping them"
+                                      IsChecked="True"
+                                      Margin="0,12,0,0"
+                                      Click="EstimateOption_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- CARD 3: Sanitization -->
+                    <Border Background="{DynamicResource SurfaceRaised}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,12">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="24" Height="24" CornerRadius="6"
+                                            Background="{DynamicResource SuccessSubtle}" Margin="0,0,8,0">
+                                        <TextBlock Text="&#xE72E;" FontFamily="{DynamicResource FontIcon}"
+                                                   FontSize="12" Foreground="{DynamicResource SuccessText}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="3. Content Sanitization &amp; Security"
+                                               FontSize="13.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Border Background="{DynamicResource SuccessSubtle}"
+                                        CornerRadius="4" Padding="6,2" HorizontalAlignment="Right">
+                                    <TextBlock Text="SECRET GUARD ACTIVE" FontSize="9.5" FontWeight="Bold"
+                                               Foreground="{DynamicResource SuccessText}"/>
+                                </Border>
+                            </DockPanel>
+
+                            <UniformGrid Columns="2">
+                                <CheckBox x:Name="ChkIncludeTree"
+                                          Content="Include ASCII directory tree map"
+                                          IsChecked="True" Margin="0,0,8,10"
+                                          Click="EstimateOption_Click"/>
+                                <CheckBox x:Name="ChkRedactSecrets"
+                                          Content="Auto-redact API keys &amp; secrets"
+                                          IsChecked="True" Margin="0,0,0,10"/>
+                                <CheckBox x:Name="ChkRemoveEmptyLines"
+                                          Content="Collapse consecutive blank lines"
+                                          IsChecked="True" Margin="0,0,8,10"/>
+                                <CheckBox x:Name="ChkLineNumbers"
+                                          Content="Prefix code with line numbers"
+                                          IsChecked="False" Margin="0,0,0,10"/>
+                                <CheckBox x:Name="ChkStripComments"
+                                          Content="Strip code comments (save tokens)"
+                                          IsChecked="False" Margin="0,0,8,10"/>
+                                <CheckBox x:Name="ChkSummarizeCode"
+                                          Content="Skeleton mode (signatures only)"
+                                          IsChecked="False" Margin="0,0,0,10"/>
+                                <CheckBox x:Name="ChkMinifyCode"
+                                          Content="Trim leading indentation"
+                                          IsChecked="False" Margin="0,0,8,0"/>
+                                <CheckBox x:Name="ChkSkipBinaryAndGenerated"
+                                          Content="Skip lock &amp; minified files"
+                                          IsChecked="True" Margin="0,0,0,0"
+                                          Click="SelectionFilter_Click"/>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- CARD 4: AI System Prompt -->
+                    <Border Background="{DynamicResource SurfaceRaised}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1" CornerRadius="10" Padding="16,14" Margin="0,0,0,12">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <Border Width="24" Height="24" CornerRadius="6"
+                                        Background="{DynamicResource PurpleSubtle}" Margin="0,0,8,0">
+                                    <TextBlock Text="&#xE945;" FontFamily="{DynamicResource FontIcon}"
+                                               FontSize="12" Foreground="{DynamicResource PurpleText}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="4. AI System Prompt Header"
+                                           FontSize="13.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Prompt Template:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondary}"/>
+                                <ComboBox x:Name="CmbPromptPreset" Grid.Column="1" Style="{StaticResource StandardComboBox}" SelectionChanged="CmbPromptPreset_SelectionChanged">
+                                    <ComboBoxItem Content="No custom header (project metadata only)" Tag="None"/>
+                                    <ComboBoxItem Content="Architecture &amp; Code Quality Audit" Tag="Architect" IsSelected="True"/>
+                                    <ComboBoxItem Content="Bug Hunt, Security &amp; Edge-Case Analysis" Tag="BugHunt"/>
+                                    <ComboBoxItem Content="Refactoring &amp; Performance Optimization" Tag="Refactor"/>
+                                    <ComboBoxItem Content="Custom Prompt Instruction..." Tag="Custom"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <TextBox x:Name="TxtCustomPrompt"
+                                     Style="{StaticResource InputTextBox}"
+                                     Height="66"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     VerticalScrollBarVisibility="Auto"
+                                     VerticalContentAlignment="Top"
+                                     FontFamily="{DynamicResource FontMono}"
+                                     FontSize="11.5"
+                                     AutomationProperties.Name="Prompt text"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- CARD 5: Destination -->
+                    <Border Background="{DynamicResource SurfaceRaised}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1" CornerRadius="10" Padding="16,14">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <Border Width="24" Height="24" CornerRadius="6"
+                                        Background="{DynamicResource WarningSubtle}" Margin="0,0,8,0">
+                                    <TextBlock Text="&#xE8F4;" FontFamily="{DynamicResource FontIcon}"
+                                               FontSize="12" Foreground="{DynamicResource WarningText}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="5. Destination &amp; Post-Export Workflow"
+                                           FontSize="13.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="TxtOutputDir"
+                                         Grid.Column="0"
+                                         Style="{StaticResource InputTextBox}"
+                                         FontFamily="{DynamicResource FontMono}"
+                                         FontSize="11.5"
+                                         ToolTip="Destination directory for exported files"
+                                         AutomationProperties.Name="Output directory"/>
+                                <Button x:Name="BtnBrowseOutput"
+                                        Grid.Column="1"
+                                        Style="{StaticResource BtnSecondary}"
+                                        Margin="6,0,0,0"
+                                        Padding="10,6"
+                                        Click="BtnBrowseOutput_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE838;" FontFamily="{DynamicResource FontIcon}" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Browse"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="BtnOpenOutput"
+                                        Grid.Column="2"
+                                        Style="{StaticResource BtnGhost}"
+                                        Margin="6,0,0,0"
+                                        Padding="10,6"
+                                        Click="BtnOpenOutput_Click"
+                                        ToolTip="Open output folder in Windows Explorer">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE8A7;" FontFamily="{DynamicResource FontIcon}" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Open"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <UniformGrid Columns="2">
+                                <CheckBox x:Name="ChkCopyFirstChunk"
+                                          Content="Copy Part 1 to clipboard automatically"
+                                          IsChecked="True" Margin="0,0,8,8"/>
+                                <CheckBox x:Name="ChkOpenFolderAfter"
+                                          Content="Open output folder when finished"
+                                          IsChecked="False" Margin="0,0,0,8"/>
+                                <CheckBox x:Name="ChkClearOldExports"
+                                          Content="Clean old export files in target folder"
+                                          IsChecked="True" Margin="0,0,8,0"/>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- ==================== FOOTER ==================== -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource SurfaceRaised}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,1,0,0"
+                Padding="22,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8" Fill="{DynamicResource SuccessAction}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtFooterStatus"
+                               Text="Ready to export."
+                               FontSize="12.5"
+                               Foreground="{DynamicResource TextSecondary}"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="BtnClose"
+                            Content="Close (Esc)"
+                            Style="{StaticResource BtnSecondary}"
+                            Width="115"
+                            Margin="0,0,10,0"
+                            Click="BtnClose_Click"/>
+                    <Button x:Name="BtnStartExport"
+                            Style="{StaticResource BtnPrimary}"
+                            Width="185"
+                            IsDefault="True"
+                            Click="BtnStartExport_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE724;" FontFamily="{DynamicResource FontIcon}"
+                                       FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="Generate Export" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== PROGRESS OVERLAY ==================== -->
+        <Grid x:Name="ExportOverlay"
+              Grid.RowSpan="3"
+              Background="{DynamicResource SurfaceScrim}"
+              Visibility="Collapsed">
+            <Border Width="480"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Background="{DynamicResource SurfaceOverlay}"
+                    BorderBrush="{DynamicResource BorderInput}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="26,22">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <Border Width="32" Height="32" CornerRadius="8"
+                                Background="{DynamicResource AccentSubtle}" Margin="0,0,12,0">
+                            <TextBlock Text="&#xE895;" FontFamily="{DynamicResource FontIcon}"
+                                       FontSize="15" Foreground="{DynamicResource AccentText}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock x:Name="TxtProgressTitle"
+                                   Text="Exporting Project Context..."
+                                   FontSize="16" FontWeight="Bold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextPrimary}"/>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtProgressDetail"
+                               Text="Preparing files..."
+                               FontSize="12"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="0,6,0,14"
+                               TextTrimming="CharacterEllipsis"/>
+
+                    <ProgressBar x:Name="PrgExport"
+                                 Height="8"
+                                 Minimum="0" Maximum="100" Value="0"
+                                 Margin="0,0,0,10"/>
+
+                    <DockPanel Margin="0,0,0,18">
+                        <TextBlock x:Name="TxtProgressCount"
+                                   Text="0 / 0 files"
+                                   FontSize="11.5"
+                                   Foreground="{DynamicResource TextSecondary}"/>
+                        <TextBlock x:Name="TxtProgressPct"
+                                   Text="0%"
+                                   FontSize="11.5" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentText}"
+                                   HorizontalAlignment="Right"/>
+                    </DockPanel>
+
+                    <Button x:Name="BtnCancelExport"
+                            Content="Cancel Export"
+                            Style="{StaticResource BtnDanger}"
+                            HorizontalAlignment="Right"
+                            Width="135"
+                            Click="BtnCancelExport_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

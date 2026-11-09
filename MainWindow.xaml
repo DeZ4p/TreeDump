@@ -1,0 +1,1185 @@
+﻿<Window x:Class="TreeDump.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        Title="{DynamicResource Str.AppName}"
+        Width="1420"
+        Height="860"
+        MinWidth="1120"
+        MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource SurfaceBase}"
+        Foreground="{DynamicResource TextPrimary}"
+        FontFamily="{StaticResource UiFont}"
+        AllowDrop="True"
+        DragOver="Window_DragOver"
+        Drop="Window_Drop"
+        KeyDown="Window_KeyDown"
+        Closing="Window_Closing">
+
+    <Window.Resources>
+        <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+        <Style x:Key="KpiCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SurfaceCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="14,10" />
+        </Style>
+
+        <Style x:Key="PaneCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SurfaceRaised}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtle}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+        </Style>
+
+        <Style x:Key="CaptionText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}" />
+        </Style>
+
+        <Style x:Key="ValueText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        </Style>
+
+        <Style x:Key="ShortcutPill" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBase}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderInput}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Padding" Value="7,2" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="56" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+
+        <!-- ============================================================== -->
+        <!-- ROW 0: TOP STUDIO MENU & BRAND BAR                             -->
+        <!-- ============================================================== -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SurfaceRaised}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,0,0,1"
+                Padding="14,5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Brand Badge -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
+                    <Image Source="{StaticResource AppLogo}" Width="26" Height="26" Margin="0,0,9,0" RenderOptions.BitmapScalingMode="HighQuality" AutomationProperties.Name="TreeDump logo" />
+                    <TextBlock Text="TreeDump"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimary}"
+                               VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource AccentSubtle}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="5,1"
+                            Margin="6,0,0,0"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="PRO"
+                                   FontSize="9.5"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentText}" />
+                    </Border>
+                </StackPanel>
+
+                <!-- Main Menu -->
+                <Menu Grid.Column="1" VerticalAlignment="Center">
+                    <MenuItem Header="_File">
+                        <MenuItem Header="_Open Folder..." InputGestureText="Ctrl+O" Click="BtnSelectFolder_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE838;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem x:Name="MenuRecent" Header="Open _Recent">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE81C;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Advanced _Export..." InputGestureText="Ctrl+E" Click="BtnExport_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xEDE1;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="E_xit" InputGestureText="Ctrl+Q" Click="MenuExit_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE7E8;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="_View">
+                        <MenuItem Header="_Refresh Workspace" InputGestureText="F5" Click="BtnRefreshStats_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE72C;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem x:Name="MenuThemeDark" Header="_Dark Theme" IsCheckable="True" Click="MenuThemeDark_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE708;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem x:Name="MenuThemeLight" Header="_Light Theme" IsCheckable="True" Click="MenuThemeLight_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE706;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem x:Name="MenuThemeSystem" Header="Follow _System Theme" IsCheckable="True" Click="MenuThemeSystem_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE7F4;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Toggle Theme" InputGestureText="Ctrl+T" Click="MenuToggleTheme_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE793;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="_Tools">
+                        <MenuItem Header="_Search in Workspace..." InputGestureText="Ctrl+F" Click="BtnSearch_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE721;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Copy _Prompt Rules" InputGestureText="Ctrl+P" Click="BtnCopyRules_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE8C8;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem x:Name="MenuHandoff" Header="Generate _Handoff..." InputGestureText="Ctrl+H" IsEnabled="False" Click="BtnHandoff_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE724;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Settings..." InputGestureText="Ctrl+," Click="BtnSettings_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE713;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="_Help">
+                        <MenuItem Header="_Keyboard Shortcuts &amp; Guide" InputGestureText="F1" Click="MenuHelp_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE765;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_About TreeDump Pro" Click="MenuAbout_Click">
+                            <MenuItem.Icon>
+                                <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE946;" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Quick Theme & Shortcut Indicator -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource BtnGhost}"
+                            Padding="8,3"
+                            MinHeight="24"
+                            ToolTip="Toggle Dark / Light Theme (Ctrl+T)"
+                            Click="MenuToggleTheme_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE793;" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0" />
+                            <TextBlock Text="Theme" FontSize="11.5" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ============================================================== -->
+        <!-- ROW 1: COMMAND HEADER BAR                                      -->
+        <!-- ============================================================== -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource SurfaceHeaderBrush}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,0,0,1"
+                Padding="14,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="260" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Workspace Path Pill -->
+                <Border Grid.Column="0"
+                        Background="{DynamicResource SurfaceInput}"
+                        BorderBrush="{DynamicResource BorderInput}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="6,3">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Background="{DynamicResource AccentSubtle}"
+                                CornerRadius="5"
+                                Padding="7,4"
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="{StaticResource IconFont}"
+                                           Text="&#xE8B7;"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource AccentText}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,5,0" />
+                                <TextBlock Text="WORKSPACE"
+                                           FontSize="10"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentText}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+
+                        <TextBox Grid.Column="1"
+                                 x:Name="TxtPath"
+                                 IsReadOnly="True"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Padding="2,0"
+                                 MinHeight="24"
+                                 FontFamily="{StaticResource CodeFont}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource TextPrimary}"
+                                 VerticalAlignment="Center"
+                                 Text="No workspace loaded — click 'Open Folder' or drop a directory here" />
+
+                        <Button Grid.Column="2"
+                                x:Name="BtnSelectFolder"
+                                Style="{StaticResource BtnSecondary}"
+                                MinHeight="28"
+                                Padding="10,4"
+                                Margin="6,0,0,0"
+                                ToolTip="Open Project Folder (Ctrl+O)"
+                                Click="BtnSelectFolder_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8DA;" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                <TextBlock Text="Open Folder" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Action Toolbar Cluster -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="BtnSearch"
+                            Style="{StaticResource BtnSecondary}"
+                            IsEnabled="False"
+                            Margin="0,0,6,0"
+                            ToolTip="Search across workspace files (Ctrl+F)"
+                            Click="BtnSearch_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE721;" FontSize="12" Foreground="{DynamicResource CyanText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Search" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnCopyTree"
+                            Style="{StaticResource BtnSecondary}"
+                            IsEnabled="False"
+                            Margin="0,0,6,0"
+                            ToolTip="Copy ASCII directory tree to clipboard"
+                            Click="BtnCopyTree_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8C8;" FontSize="12" Foreground="{DynamicResource AccentText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Copy Tree" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnCopyAllSent"
+                            Style="{StaticResource BtnSecondary}"
+                            IsEnabled="False"
+                            Margin="0,0,6,0"
+                            ToolTip="Copy all files marked as Sent in this session"
+                            Click="BtnCopyAllSent_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE73E;" FontSize="12" Foreground="{DynamicResource SuccessText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Copy Sent" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnCopyRules"
+                            Style="{StaticResource BtnSecondary}"
+                            Margin="0,0,6,0"
+                            ToolTip="Copy Prompt / Laws file to clipboard (Ctrl+P)"
+                            Click="BtnCopyRules_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8A5;" FontSize="12" Foreground="{DynamicResource PurpleText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Prompt" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnHandoff"
+                            Style="{StaticResource BtnSecondary}"
+                            IsEnabled="False"
+                            Margin="0,0,10,0"
+                            ToolTip="Generate Session Handoff document (Ctrl+H)"
+                            Click="BtnHandoff_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE724;" FontSize="12" Foreground="{DynamicResource WarningText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Handoff" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Primary Call-to-Action -->
+                    <Button x:Name="BtnExport"
+                            Style="{StaticResource BtnPrimary}"
+                            IsEnabled="False"
+                            Padding="14,6"
+                            Margin="0,0,8,0"
+                            ToolTip="Open Advanced Multi-File Context Exporter (Ctrl+E)"
+                            Click="BtnExport_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xEDE1;" FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <TextBlock Text="Export Context" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnSettings"
+                            Style="{StaticResource BtnSecondary}"
+                            Padding="10,6"
+                            ToolTip="Preferences &amp; Scanner Settings (Ctrl+,)"
+                            AutomationProperties.Name="Settings"
+                            Click="BtnSettings_Click">
+                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE713;" FontSize="14" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ============================================================== -->
+        <!-- ROW 2: COLORFUL KPI METRIC STRIP                               -->
+        <!-- ============================================================== -->
+        <Grid Grid.Row="2" Margin="14,10,14,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="1.65*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- KPI 1: Total Files -->
+            <Border Grid.Column="0" Style="{StaticResource KpiCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0"
+                            Width="38"
+                            Height="38"
+                            CornerRadius="8"
+                            Background="{DynamicResource AccentSubtle}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0">
+                        <TextBlock FontFamily="{StaticResource IconFont}"
+                                   Text="&#xE8A5;"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource AccentText}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="INDEXED FILES" Style="{StaticResource CaptionText}" FontSize="10.5" />
+                        <TextBlock x:Name="TxtTotalFiles" Text="0" Style="{StaticResource ValueText}" Margin="0,1,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- KPI 2: Workspace Volume -->
+            <Border Grid.Column="2" Style="{StaticResource KpiCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0"
+                            Width="38"
+                            Height="38"
+                            CornerRadius="8"
+                            Background="{DynamicResource PurpleSubtle}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0">
+                        <TextBlock FontFamily="{StaticResource IconFont}"
+                                   Text="&#xEDA2;"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource PurpleText}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="WORKSPACE VOLUME" Style="{StaticResource CaptionText}" FontSize="10.5" />
+                        <TextBlock x:Name="TxtTotalSize" Text="0 B" Style="{StaticResource ValueText}" Margin="0,1,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- KPI 3: Sent in Session -->
+            <Border Grid.Column="4" Style="{StaticResource KpiCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0"
+                            Width="38"
+                            Height="38"
+                            CornerRadius="8"
+                            Background="{DynamicResource SuccessSubtle}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0">
+                        <TextBlock FontFamily="{StaticResource IconFont}"
+                                   Text="&#xE73E;"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource SuccessText}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="SENT IN SESSION" Style="{StaticResource CaptionText}" FontSize="10.5" />
+                        <TextBlock x:Name="TxtSentFiles"
+                                   Text="0"
+                                   Style="{StaticResource ValueText}"
+                                   Foreground="{DynamicResource SuccessText}"
+                                   Margin="0,1,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- KPI 4: Session Progress & Controls -->
+            <Border Grid.Column="6" Style="{StaticResource KpiCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,14,0">
+                        <Grid Margin="0,0,0,6">
+                            <TextBlock Text="SESSION CONTEXT COVERAGE"
+                                       Style="{StaticResource CaptionText}"
+                                       FontSize="10.5"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                            <Border Background="{DynamicResource AccentSubtle}"
+                                    CornerRadius="4"
+                                    Padding="6,1"
+                                    HorizontalAlignment="Right">
+                                <TextBlock x:Name="TxtProgress"
+                                           Text="0%"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentText}" />
+                            </Border>
+                        </Grid>
+                        <ProgressBar x:Name="PrgSent" Minimum="0" Maximum="100" Value="0" Height="8" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="BtnRefreshStats"
+                                Style="{StaticResource BtnSecondary}"
+                                IsEnabled="False"
+                                MinHeight="30"
+                                Padding="10,4"
+                                Margin="0,0,6,0"
+                                ToolTip="Rescan workspace files (F5)"
+                                Click="BtnRefreshStats_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE72C;" FontSize="11" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                <TextBlock Text="Rescan" FontSize="12" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="BtnResetSession"
+                                Style="{StaticResource BtnSecondary}"
+                                IsEnabled="False"
+                                MinHeight="30"
+                                Padding="10,4"
+                                ToolTip="Start a fresh session and clear Sent badges"
+                                Click="BtnResetSession_Click">
+                            <TextBlock Text="Reset Session" FontSize="12" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ============================================================== -->
+        <!-- ROW 3: MAIN SPLIT WORKSPACE (EXPLORER + CODE STUDIO)           -->
+        <!-- ============================================================== -->
+        <Grid Grid.Row="3" Margin="14,4,14,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360" MinWidth="260" MaxWidth="640" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" MinWidth="460" />
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT PANE: WORKSPACE EXPLORER -->
+            <Border Grid.Column="0" Style="{StaticResource PaneCard}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Explorer Header -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource SurfaceHeaderBrush}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="0,0,0,1"
+                            CornerRadius="10,10,0,0"
+                            Padding="12,8">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock FontFamily="{StaticResource IconFont}"
+                                           Text="&#xEC50;"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource AccentText}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,7,0" />
+                                <TextBlock Text="EXPLORER"
+                                           FontSize="11.5"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextSecondary}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="BtnExpandAll"
+                                        Content="Expand"
+                                        Style="{StaticResource BtnGhost}"
+                                        IsEnabled="False"
+                                        FontSize="11.5"
+                                        Padding="7,2"
+                                        MinHeight="24"
+                                        ToolTip="Expand all folders"
+                                        Click="BtnExpandAll_Click" />
+                                <Button x:Name="BtnCollapseAll"
+                                        Content="Collapse"
+                                        Style="{StaticResource BtnGhost}"
+                                        IsEnabled="False"
+                                        FontSize="11.5"
+                                        Padding="7,2"
+                                        MinHeight="24"
+                                        ToolTip="Collapse all folders"
+                                        Click="BtnCollapseAll_Click" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Filter Search Input -->
+                    <Grid Grid.Row="1" Margin="10,8,10,6">
+                        <TextBox x:Name="TxtSearch"
+                                 IsEnabled="False"
+                                 Padding="28,5,28,5"
+                                 FontSize="12.5"
+                                 ToolTip="Filter explorer tree by file or folder name"
+                                 AutomationProperties.Name="Filter explorer tree"
+                                 TextChanged="TxtSearch_TextChanged" />
+                        <TextBlock FontFamily="{StaticResource IconFont}"
+                                   Text="&#xE721;"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextDisabled}"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"
+                                   IsHitTestVisible="False" />
+                        <TextBlock Text="Filter files by name..."
+                                   Foreground="{DynamicResource TextDisabled}"
+                                   FontSize="12.5"
+                                   Margin="29,0,28,0"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=TxtSearch}" Value="">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Button x:Name="BtnClearSearch"
+                                Style="{StaticResource BtnGhost}"
+                                Width="22"
+                                Height="22"
+                                MinHeight="22"
+                                Padding="0"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Margin="0,0,4,0"
+                                Visibility="Collapsed"
+                                ToolTip="Clear filter"
+                                AutomationProperties.Name="Clear filter"
+                                Click="BtnClearSearch_Click">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE711;" FontSize="10" />
+                        </Button>
+                    </Grid>
+
+                    <!-- TreeView -->
+                    <TreeView Grid.Row="2"
+                              x:Name="FileTree"
+                              Margin="6,0,6,6"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling"
+                              SelectedItemChanged="FileTree_SelectedItemChanged"
+                              ContextMenuOpening="FileTree_ContextMenuOpening">
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem x:Name="CtxOpen" Header="Open with Default App" Click="CtxOpen_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE8A7;" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="CtxShowInExplorer" Header="Reveal in File Explorer" Click="CtxShowInExplorer_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE838;" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem x:Name="CtxCopyFile" Header="Copy File to Clipboard" Click="CtxCopyFile_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE8C8;" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="CtxCopyRelativePath" Header="Copy Relative Path" Click="CtxCopyRelativePath_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE71B;" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="CtxOpenTerminal" Header="Open PowerShell Here" Click="CtxOpenTerminal_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE756;" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem x:Name="CtxRename" Header="Rename..." Click="CtxRename_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE8AC;" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="CtxDelete" Header="Delete (Recycle Bin)" Foreground="{DynamicResource DangerText}" Click="CtxDelete_Click">
+                                    <MenuItem.Icon>
+                                        <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE74D;" Foreground="{DynamicResource DangerText}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
+
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                <Grid Margin="2,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               FontFamily="{StaticResource IconFont}"
+                                               FontSize="13.5"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,7,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="&#xE8A5;" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondary}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                                        <Setter Property="Text" Value="&#xE8B7;" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource AccentText}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Name}"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsSent}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource SuccessText}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Sent Pill Badge -->
+                                    <Border Grid.Column="2"
+                                            Background="{DynamicResource SuccessSubtle}"
+                                            BorderBrush="{DynamicResource SuccessAction}"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="5,1"
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSent}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontFamily="{StaticResource IconFont}"
+                                                       Text="&#xE73E;"
+                                                       FontSize="9"
+                                                       Foreground="{DynamicResource SuccessText}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,3,0" />
+                                            <TextBlock Text="SENT"
+                                                       FontSize="9.5"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource SuccessText}"
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding SizeFormatted}"
+                                               Foreground="{DynamicResource TextDisabled}"
+                                               FontFamily="{StaticResource CodeFont}"
+                                               FontSize="11"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,4,0" />
+                                </Grid>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
+            </Border>
+
+            <!-- SPLITTER -->
+            <GridSplitter Grid.Column="1"
+                          Width="10"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          ResizeBehavior="PreviousAndNext" />
+
+            <!-- RIGHT PANE: CODE STUDIO & PREVIEW -->
+            <Border Grid.Column="2" Style="{StaticResource PaneCard}" ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Editor Header & Action Bar -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource SurfaceHeaderBrush}"
+                            BorderBrush="{DynamicResource BorderSubtle}"
+                            BorderThickness="0,0,0,1"
+                            CornerRadius="10,10,0,0"
+                            Padding="14,7">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Active File Tab Info -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="26"
+                                        Height="26"
+                                        CornerRadius="6"
+                                        Background="{DynamicResource SurfaceOverlay}"
+                                        BorderBrush="{DynamicResource BorderSubtle}"
+                                        BorderThickness="1"
+                                        Margin="0,0,10,0">
+                                    <TextBlock FontFamily="{StaticResource IconFont}"
+                                               Text="&#xE943;"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource AccentText}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+
+                                <TextBlock x:Name="TxtFileName"
+                                           Text="Select a file from the explorer"
+                                           FontFamily="{StaticResource CodeFont}"
+                                           FontSize="12.5"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimary}"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" />
+
+                                <Border Background="{DynamicResource CyanSubtle}"
+                                        CornerRadius="5"
+                                        Padding="7,2"
+                                        Margin="10,0,0,0"
+                                        VerticalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=TxtTokenEstimate}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock x:Name="TxtTokenEstimate"
+                                               Text=""
+                                               FontFamily="{StaticResource CodeFont}"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource CyanText}" />
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Editor Controls -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button x:Name="BtnUndo"
+                                        Style="{StaticResource BtnGhost}"
+                                        IsEnabled="False"
+                                        Padding="7,4"
+                                        ToolTip="Undo (Ctrl+Z)"
+                                        AutomationProperties.Name="Undo"
+                                        Click="BtnUndo_Click">
+                                    <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE7A7;" FontSize="12" />
+                                </Button>
+                                <Button x:Name="BtnRedo"
+                                        Style="{StaticResource BtnGhost}"
+                                        IsEnabled="False"
+                                        Padding="7,4"
+                                        ToolTip="Redo (Ctrl+Y)"
+                                        AutomationProperties.Name="Redo"
+                                        Click="BtnRedo_Click">
+                                    <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE7A6;" FontSize="12" />
+                                </Button>
+                                <Button x:Name="BtnReload"
+                                        Style="{StaticResource BtnGhost}"
+                                        IsEnabled="False"
+                                        Padding="7,4"
+                                        ToolTip="Reload file from disk"
+                                        AutomationProperties.Name="Reload file"
+                                        Click="BtnReload_Click">
+                                    <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE72C;" FontSize="12" />
+                                </Button>
+
+                                <Border Width="1" Height="16" Background="{DynamicResource BorderSubtle}" Margin="6,0" />
+
+                                <Button x:Name="BtnWrap"
+                                        Content="Wrap"
+                                        Style="{StaticResource BtnGhost}"
+                                        FontSize="11.5"
+                                        Padding="8,4"
+                                        ToolTip="Toggle Word Wrap"
+                                        Click="BtnWrap_Click" />
+                                <Button x:Name="BtnZoomOut"
+                                        Content="A-"
+                                        Style="{StaticResource BtnGhost}"
+                                        FontSize="11.5"
+                                        Padding="7,4"
+                                        ToolTip="Decrease editor font size"
+                                        Click="BtnZoomOut_Click" />
+                                <Button x:Name="BtnZoomIn"
+                                        Content="A+"
+                                        Style="{StaticResource BtnGhost}"
+                                        FontSize="11.5"
+                                        Padding="7,4"
+                                        Margin="0,0,8,0"
+                                        ToolTip="Increase editor font size"
+                                        Click="BtnZoomIn_Click" />
+
+                                <Button x:Name="BtnEditSave"
+                                        Content="Edit"
+                                        Style="{StaticResource BtnSecondary}"
+                                        IsEnabled="False"
+                                        MinHeight="28"
+                                        Padding="12,4"
+                                        Margin="0,0,6,0"
+                                        ToolTip="Toggle Edit Mode / Save Changes (Ctrl+S)"
+                                        Click="BtnEditSave_Click" />
+
+                                <Button x:Name="BtnCopy"
+                                        Style="{StaticResource BtnPrimary}"
+                                        IsEnabled="False"
+                                        MinHeight="28"
+                                        Padding="12,4"
+                                        ToolTip="Copy file as fenced Markdown block and mark as Sent"
+                                        Click="BtnCopy_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8C8;" FontSize="11.5" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Text="Copy Content" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- AvalonEdit Host + Interactive Empty Welcome Overlay -->
+                    <Grid Grid.Row="1">
+                        <avalonEdit:TextEditor x:Name="CodeEditor"
+                                               FontFamily="{StaticResource CodeFont}"
+                                               FontSize="13"
+                                               ShowLineNumbers="True"
+                                               IsReadOnly="True"
+                                               Background="{DynamicResource SurfaceBase}"
+                                               Foreground="{DynamicResource TextPrimary}"
+                                               LineNumbersForeground="{DynamicResource TextDisabled}"
+                                               Padding="8"
+                                               HorizontalScrollBarVisibility="Auto"
+                                               VerticalScrollBarVisibility="Auto">
+                            <avalonEdit:TextEditor.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Copy Selection" Click="CtxEditorCopy_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE8C8;" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Copy as Markdown Code Block" Click="CtxEditorCopyMarkdown_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE943;" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Copy with Line Numbers" Click="CtxEditorCopyLines_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Style="{StaticResource MenuGlyph}" Text="&#xE8FD;" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </avalonEdit:TextEditor.ContextMenu>
+                        </avalonEdit:TextEditor>
+
+                        <!-- Interactive Studio Empty State -->
+                        <Border x:Name="EmptyEditorHint"
+                                Background="{DynamicResource SurfaceBase}"
+                                Padding="32">
+                            <Border MaxWidth="520"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource SurfaceCardBrush}"
+                                    BorderBrush="{DynamicResource BorderSubtle}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="28,24">
+                                <StackPanel>
+                                    <Border Width="48"
+                                            Height="48"
+                                            CornerRadius="12"
+                                            Background="{DynamicResource AccentSubtle}"
+                                            HorizontalAlignment="Center"
+                                            Margin="0,0,0,14">
+                                        <TextBlock FontFamily="{StaticResource IconFont}"
+                                                   Text="&#xE943;"
+                                                   FontSize="22"
+                                                   Foreground="{DynamicResource AccentText}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <TextBlock Text="TreeDump Pro Code Studio"
+                                               FontSize="17"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource TextPrimary}"
+                                               HorizontalAlignment="Center" />
+
+                                    <TextBlock Text="Select any source file from the left explorer to inspect syntax, estimate LLM tokens, or copy formatted Markdown context."
+                                               FontSize="12.5"
+                                               Foreground="{DynamicResource TextSecondary}"
+                                               TextWrapping="Wrap"
+                                               TextAlignment="Center"
+                                               Margin="0,6,0,18" />
+
+                                    <!-- Quick Action Buttons -->
+                                    <WrapPanel HorizontalAlignment="Center" Margin="0,0,0,18">
+                                        <Button Style="{StaticResource BtnPrimary}"
+                                                Margin="4"
+                                                Padding="14,6"
+                                                Click="BtnSelectFolder_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8DA;" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                                <TextBlock Text="Open Folder" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource BtnSecondary}"
+                                                Margin="4"
+                                                Padding="12,6"
+                                                Click="BtnCopyRules_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8A5;" FontSize="12" Foreground="{DynamicResource PurpleText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                                <TextBlock Text="Copy Prompt Laws" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource BtnSecondary}"
+                                                Margin="4"
+                                                Padding="12,6"
+                                                Click="MenuHelp_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE897;" FontSize="12" Foreground="{DynamicResource CyanText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                                <TextBlock Text="Shortcuts Guide" />
+                                            </StackPanel>
+                                        </Button>
+                                    </WrapPanel>
+
+                                    <Border Height="1" Background="{DynamicResource BorderSubtle}" Margin="0,0,0,14" />
+
+                                    <!-- Shortcut Hints Grid -->
+                                    <Grid HorizontalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="18" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="18" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <Border Style="{StaticResource ShortcutPill}" Margin="0,0,6,0">
+                                                <TextBlock Text="Ctrl+O" FontFamily="{StaticResource CodeFont}" FontSize="11" Foreground="{DynamicResource TextPrimary}" />
+                                            </Border>
+                                            <TextBlock Text="Open" FontSize="11.5" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                            <Border Style="{StaticResource ShortcutPill}" Margin="0,0,6,0">
+                                                <TextBlock Text="Ctrl+F" FontFamily="{StaticResource CodeFont}" FontSize="11" Foreground="{DynamicResource TextPrimary}" />
+                                            </Border>
+                                            <TextBlock Text="Search" FontSize="11.5" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal">
+                                            <Border Style="{StaticResource ShortcutPill}" Margin="0,0,6,0">
+                                                <TextBlock Text="Ctrl+E" FontFamily="{StaticResource CodeFont}" FontSize="11" Foreground="{DynamicResource TextPrimary}" />
+                                            </Border>
+                                            <TextBlock Text="Export" FontSize="11.5" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ============================================================== -->
+        <!-- ROW 4: STUDIO STATUS BAR                                       -->
+        <!-- ============================================================== -->
+        <Border Grid.Row="4"
+                Background="{DynamicResource SurfaceRaised}"
+                BorderBrush="{DynamicResource BorderSubtle}"
+                BorderThickness="0,1,0,0"
+                Padding="14,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="7" Height="7" Fill="{DynamicResource SuccessText}" Margin="0,0,7,0" VerticalAlignment="Center" />
+                    <TextBlock x:Name="TxtFooter"
+                               Text="Workspace: None   |   Session: 00:00:00"
+                               FontSize="11.5"
+                               Foreground="{DynamicResource TextSecondary}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <Border Grid.Column="1" Width="1" Height="14" Background="{DynamicResource BorderSubtle}" Margin="14,0" />
+
+                <TextBlock Grid.Column="2"
+                           x:Name="TxtStatus"
+                           Text="Ready"
+                           FontSize="11.5"
+                           Foreground="{DynamicResource AccentText}"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" />
+
+                <TextBlock Grid.Column="3"
+                           x:Name="TxtEditorStats"
+                           Text="Ln 0  |  0 chars  |  ~0 tokens"
+                           FontFamily="{StaticResource CodeFont}"
+                           FontSize="11.5"
+                           Foreground="{DynamicResource TextSecondary}"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <!-- ============================================================== -->
+        <!-- LOADING OVERLAY                                                -->
+        <!-- ============================================================== -->
+        <Border x:Name="LoadingOverlay"
+                Grid.RowSpan="5"
+                Background="{DynamicResource SurfaceScrim}"
+                Visibility="Collapsed">
+            <Border Width="320"
+                    Background="{DynamicResource SurfaceOverlay}"
+                    BorderBrush="{DynamicResource BorderInput}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="24,20"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock x:Name="TxtLoading"
+                               Text="Scanning workspace..."
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimary}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,12" />
+                    <ProgressBar IsIndeterminate="True" Height="6" />
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="TreeDump Pro">
+  <defs>
+    <linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="8" y1="8" x2="248" y2="248">
+      <stop offset="0" stop-color="#2F6BF0"/>
+      <stop offset="1" stop-color="#5B4BE0"/>
+    </linearGradient>
+    <linearGradient id="hl" gradientUnits="userSpaceOnUse" x1="0" y1="8" x2="0" y2="136">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="top"><rect x="0" y="0" width="256" height="136"/></clipPath>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)"/>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#hl)" clip-path="url(#top)"/>
+  <g fill="none" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M68 91 V164 Q68 180 84 180 H100"/>
+    <path d="M68 128 H100"/>
+  </g>
+  <circle cx="68" cy="76" r="15" fill="#FFFFFF"/>
+  <rect x="100" y="68" width="88" height="16" rx="8" fill="#FFFFFF"/>
+  <rect x="112" y="120" width="64" height="16" rx="8" fill="#E6EEFF"/>
+  <rect x="112" y="172" width="96" height="16" rx="8" fill="#7DE3F7"/>
+</svg>

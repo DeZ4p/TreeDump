@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <!-- English UI strings. Keys are consumed as windows are migrated. -->
+    <system:String x:Key="Str.AppName">TreeDump Pro</system:String>
+    <system:String x:Key="Str.Common.OK">OK</system:String>
+    <system:String x:Key="Str.Common.Cancel">Cancel</system:String>
+    <system:String x:Key="Str.Common.Close">Close</system:String>
+    <system:String x:Key="Str.Common.Yes">Yes</system:String>
+    <system:String x:Key="Str.Common.No">No</system:String>
+    <system:String x:Key="Str.Common.Error">Error</system:String>
+</ResourceDictionary>

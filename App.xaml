@@ -1,0 +1,18 @@
+<Application x:Class="TreeDump.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Order: Foundation (scales), active theme tokens, control styles, strings, extras.
+                     ThemeService swaps the Tokens.*.xaml entry at runtime by URI. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Foundation.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Tokens.Dark.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Controls.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Strings.en.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Extras.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Themes/Logo.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

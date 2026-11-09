@@ -1,0 +1,39 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- Typography. Fonts are system fonts (Segoe UI, Cascadia Code, Consolas). -->
+    <FontFamily x:Key="UiFont">Segoe UI</FontFamily>
+    <FontFamily x:Key="CodeFont">Cascadia Code, Consolas, Courier New</FontFamily>
+
+    <system:Double x:Key="FontSizeCaption">12</system:Double>
+    <system:Double x:Key="FontSizeBody">13</system:Double>
+    <system:Double x:Key="FontSizeBodyLarge">14</system:Double>
+    <system:Double x:Key="FontSizeSubtitle">16</system:Double>
+    <system:Double x:Key="FontSizeTitle">22</system:Double>
+
+    <!-- Sizing. Controls use MinHeight instead of fixed Height so localized text can grow. -->
+    <system:Double x:Key="ControlMinHeight">34</system:Double>
+    <system:Double x:Key="ToolbarHeight">52</system:Double>
+    <system:Double x:Key="FooterHeight">28</system:Double>
+
+    <!-- Shape -->
+    <CornerRadius x:Key="RadiusSm">4</CornerRadius>
+    <CornerRadius x:Key="RadiusMd">6</CornerRadius>
+    <CornerRadius x:Key="RadiusLg">10</CornerRadius>
+
+    <!-- Spacing scale (4 px base) -->
+    <Thickness x:Key="Space1">4</Thickness>
+    <Thickness x:Key="Space2">8</Thickness>
+    <Thickness x:Key="Space3">12</Thickness>
+    <Thickness x:Key="Space4">16</Thickness>
+    <Thickness x:Key="Space6">24</Thickness>
+
+    <!-- Focus ring width: WCAG 2.4.13 needs at least 2 px -->
+    <Thickness x:Key="FocusRingWidth">2</Thickness>
+
+    <!-- Motion. Controls should check reduced-motion preference in code (ThemeService). -->
+    <Duration x:Key="DurationFast">0:0:0.12</Duration>
+    <Duration x:Key="DurationBase">0:0:0.2</Duration>
+
+</ResourceDictionary>

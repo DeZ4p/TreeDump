@@ -1,0 +1,24 @@
+# Normalize line endings in the repo; checkout follows platform defaults.
+* text=auto
+
+# Source files
+*.cs     text diff=csharp
+*.csproj text
+*.sln    text
+*.xaml   text
+*.md     text diff=markdown
+*.json   text
+*.yml    text
+*.yaml   text
+*.ps1    text eol=crlf
+*.svg    text
+
+# Binary assets
+*.png  binary
+*.ico  binary
+*.jpg  binary
+*.ttf  binary
+*.otf  binary
+*.zip  binary
+*.dll  binary
+*.exe  binary

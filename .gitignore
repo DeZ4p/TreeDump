@@ -1,0 +1,50 @@
+# ---- Build output ----
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+artifacts/
+*.nupkg
+
+# ---- IDE / user state ----
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+
+# ---- TreeDump runtime data (NEVER commit) ----
+*.db
+*.db-shm
+*.db-wal
+crash.log
+*.log
+
+# ---- TreeDump generated output ----
+export/
+backups/
+
+# ---- Local backups and patch leftovers ----
+*.bak
+*.orig
+*.rej
+*.pre-*.bak
+
+# ---- Secrets (defense in depth) ----
+.env
+.env.*
+*.pfx
+*.snk
+*.pem
+*.key
+secrets.json
+
+# ---- OS ----
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# ---- Local-only notes ----
+.clinerules/
